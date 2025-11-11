@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "..\stack\stack.h"
-#include "..\asm\asm.h"
-#include "..\proc\processor.h"
+#include "stack.h"
+#include "asm.h"
+#include "processor.h"
 
 int main ()
 {
@@ -24,7 +24,7 @@ int processor_launch_and_execution_assembler(const char *asm_file, const char *n
         printf ("NATIVE CODE FILE ABSENT\n");
         return -1;
     }
-    
+    struct proc processor = {};
     assembler_to_native_code (asm_file, native_code_file);
     
     FILE * TEXTIN = fopen(native_code_file, "r");
@@ -60,7 +60,7 @@ int read_native_file_and_fill_arr (FILE *TEXTIN, struct proc *processor)
 
     fseek (TEXTIN, 0, SEEK_SET);
 
-    char *native_file_arr = fill_native_file_arr (processor, &len, TEXTIN);
+    char *native_file_arr = fill_native_file_arr (&len, TEXTIN);
     // for (int l = 0; l < len; l++)
     // {
     //     printf ("%c\n", native_file_arr[l]);
@@ -83,7 +83,7 @@ int read_native_file_and_fill_arr (FILE *TEXTIN, struct proc *processor)
     return 1;
 }
 
-char *fill_native_file_arr (struct proc *processor, size_t *len, FILE *TEXTIN)
+char *fill_native_file_arr (size_t *len, FILE *TEXTIN)
 {
     if (len == NULL)
     {
@@ -97,7 +97,7 @@ char *fill_native_file_arr (struct proc *processor, size_t *len, FILE *TEXTIN)
         return NULL;
     }
 
-    size_t a = fread (native_file_arr, *len, 1, TEXTIN);
+    fread (native_file_arr, *len, 1, TEXTIN);
 
     size_t n_strings = 0;
     for (size_t i = 0; i < *len; i++)
@@ -142,7 +142,7 @@ int fill_processor_native_code_arr (struct proc *processor, char *native_file_ar
         return -1;
     }
 
-    for (int i = 1; i < len; i++)
+    for (size_t i = 1; i < len; i++)
     {
         if (native_file_arr[i-1] == '\0')
         {
@@ -182,6 +182,7 @@ int execution (struct proc *processor)
     int a = 0;
     int b = 0;
     int num = 0;
+    // double a1 = 1.0;
 
 
     stack_init (&stack1, 1, 1234567890);
@@ -237,7 +238,7 @@ int execution (struct proc *processor)
         case 9: // SQRT
             processor->native_code_size++;
             a = stack_pop(&stack1);
-            stack_push (&stack1, sqrt(a));
+            stack_push (&stack1, ((int )sqrt(a * 1.0) % 1));
             break;
         case 10: // PUSHR
             // printf ("%d, %d", processor->native_code_arr[processor->native_code_size], processor->native_code_arr[processor->native_code_size+1]);
